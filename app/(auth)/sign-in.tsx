@@ -51,7 +51,7 @@ const SignIn = () => {
 
   const [loading, setLoading] = useState<boolean>(false);
 
-  const [email, setEmail] = useState<string>("anas@gmail.com");
+  const [email, setEmail] = useState<string>("anass@gmail.com");
   const [password, setPassword] = useState<string>("123456");
 
   const [unPlaceholder, setUnPlaceholder] = useState<string>("Username");

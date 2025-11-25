@@ -1,4 +1,11 @@
-import { StyleSheet, Text, TouchableOpacity, View, Image } from "react-native";
+import {
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+  Image,
+  TextInput,
+} from "react-native";
 import React, { useContext, useEffect, useState } from "react";
 import Spanner from "./Spanner";
 import Line from "./Line";
@@ -10,6 +17,7 @@ import axios from "axios";
 import { authLogout } from "../services/auth";
 import { router } from "expo-router";
 import { notificationContext } from "../context/NotificationProvider";
+import { savePhone, saveUsername } from "../services/user";
 
 const IntroPanel = () => {
   const AuthSettings = useContext(AuthContext);
@@ -17,17 +25,31 @@ const IntroPanel = () => {
   const NotificationSettings = useContext(notificationContext);
   const user = AuthSettings.user ?? {};
 
+  // STATES FOR EDITABLE FIELDS
+  const [username, setUsername] = useState(user.username || "");
+  const [phoneNumber, setPhoneNumber] = useState(user.phoneNumber || "");
+
+  async function saveProfile() {
+    // EMPTY FUNCTION (you will implement later)
+    console.log("Saving:", { username, phoneNumber });
+    console.log(user);
+    const res1 = await savePhone(phoneNumber, user.uid);
+    const res2 = await saveUsername(username, user.uid);
+    if (res1 && res2) {
+      console.log("saved");
+    } else {
+      console.log("not saved");
+    }
+  }
+
   async function logout() {
     const res = await authLogout();
-    /*
-    AuthSettings.setUser(null);
-    AuthSettings.setUserToken(null);*/
-    //  StepperSettings.setStepper(null);
     if (res) {
       router.push("/(auth)/sign-in");
       NotificationSettings.notify("Logged Out", 0);
     }
   }
+
   return (
     <>
       <View
@@ -53,6 +75,7 @@ const IntroPanel = () => {
         >
           Profile
         </Text>
+
         <TouchableOpacity
           onPress={logout}
           style={{
@@ -80,6 +103,7 @@ const IntroPanel = () => {
           </View>
         </TouchableOpacity>
       </View>
+
       <View
         style={{
           backgroundColor: "white",
@@ -90,8 +114,8 @@ const IntroPanel = () => {
           flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
-          elevation: 4, // Android shadow
-          shadowColor: "#000", // iOS shadow
+          elevation: 4,
+          shadowColor: "#000",
           shadowOffset: { width: 0, height: 2 },
           shadowOpacity: 0.1,
           shadowRadius: 4,
@@ -115,6 +139,7 @@ const IntroPanel = () => {
             }}
           />
         </View>
+
         <View
           style={{
             flexDirection: "column",
@@ -122,17 +147,56 @@ const IntroPanel = () => {
             alignItems: "center",
           }}
         >
-          <Text
+          {/* USERNAME - EDITABLE */}
+          <TextInput
+            value={username}
+            onChangeText={setUsername}
             style={{
               color: "black",
               fontSize: 25,
               top: "5%",
               position: "relative",
+              textAlign: "center",
+            }}
+          />
+
+          {/* EMAIL - NOT EDITABLE */}
+          <Text
+            style={{
+              color: "grey",
+              fontSize: 18,
+              marginTop: 10,
             }}
           >
-            {user.username}
+            {user.email}
           </Text>
+
+          {/* PHONE NUMBER - EDITABLE */}
+          <TextInput
+            value={phoneNumber}
+            onChangeText={setPhoneNumber}
+            style={{
+              color: "grey",
+              fontSize: 18,
+              marginTop: 5,
+              textAlign: "center",
+            }}
+          />
         </View>
+
+        {/* SAVE BUTTON */}
+        <TouchableOpacity
+          onPress={saveProfile}
+          style={{
+            backgroundColor: "black",
+            paddingVertical: 10,
+            paddingHorizontal: 20,
+            borderRadius: 10,
+            marginVertical: 20,
+          }}
+        >
+          <Text style={{ color: "white", fontSize: 18 }}>Save</Text>
+        </TouchableOpacity>
       </View>
     </>
   );

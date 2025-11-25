@@ -13,10 +13,14 @@ import { text } from "body-parser";
 import { Ionicons } from "@expo/vector-icons";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 const { width: screenWidth, height: screenHeight } = Dimensions.get("window");
-import Home from "./home/home";
+import Home from "./(contacts)/home";
 import Profile from "./(profile)/_layout";
 import Icon from "../components/Icon";
-import { useNavigationState } from "@react-navigation/native";
+import {
+  getFocusedRouteNameFromRoute,
+  useNavigationState,
+} from "@react-navigation/native";
+import ContactsLayout from "./(contacts)/_layout";
 const Tabs = createBottomTabNavigator();
 const TabsLayout = () => {
   const state = useNavigationState((state) => state); // full navigation state
@@ -39,22 +43,27 @@ const TabsLayout = () => {
         }}
       >
         <Tabs.Screen
-          name="Friends"
-          component={Home}
-          options={{
-            title: "Friends",
-            headerShown: false,
-            tabBarIcon: ({ size, focused, color }) => {
-              return (
-                <Icon
-                  focused={focused}
-                  icon="people"
-                  name="Friends"
-                  size={size}
-                  color={color}
-                />
-              );
-            },
+          name="(contacts)"
+          component={ContactsLayout}
+          options={({ route }) => {
+            const routeName = getFocusedRouteNameFromRoute(route) ?? "";
+            return {
+              tabBarStyle: routeName === "chat" ? { display: "none" } : {},
+              title: "(contacts)",
+              headerShown: false,
+
+              tabBarIcon: ({ size, focused, color }) => {
+                return (
+                  <Icon
+                    focused={focused}
+                    icon="people"
+                    name="Friends"
+                    size={size}
+                    color={color}
+                  />
+                );
+              },
+            };
           }}
         />
 

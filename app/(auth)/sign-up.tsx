@@ -26,15 +26,17 @@ const { API_URL } = Constants.expoConfig?.extra;
 const SignUp = () => {
   const NotificationSettings = useContext(notificationContext);
   const usernameInput = useRef<TextInput>(null);
+  const phoneNumberInput = useRef<TextInput>(null);
   const emailInput = useRef<TextInput>(null);
   const passwordInput = useRef<TextInput>(null);
   const confirmPasswordInput = useRef<TextInput>(null);
 
   const [loading, setLoading] = useState<boolean>(false);
 
-  const [email, setEmail] = useState<string>("anas@gmail.com");
+  const [email, setEmail] = useState<string>("ahmed@gmail.com");
   const [username, setUsername] = useState<string>("anas");
   const [password, setPassword] = useState<string>("123456");
+  const [phoneNumber, setPhoneNumber] = useState<string>("9090909090");
   const [confirmPassword, setConfirmPassword] = useState<string>("123456");
 
   const [unPlaceholder, setUnPlaceholder] = useState<string>("Username");
@@ -47,9 +49,10 @@ const SignUp = () => {
     password: string,
     confirmPassword: string,
     email: string,
-    username: string
+    username: string,
+    phoneNumber: string
   ) {
-    const restatus = await authSignUp(username, email, password);
+    const restatus = await authSignUp(username, email, password, phoneNumber);
 
     if (restatus) {
       router.push("/sign-in");
@@ -89,6 +92,9 @@ const SignUp = () => {
   }
   function handleEmail(text: string) {
     setEmail(text);
+  }
+  function handlePhoneNumber(text: string) {
+    setPhoneNumber(text);
   }
   function handleUsername(text: string) {
     setUsername(text);
@@ -214,6 +220,18 @@ const SignUp = () => {
                 onChangeText={handleEmail}
               />
             </View>
+            <View style={styles.inputField}>
+              <Text style={styles.inputLabel}>PhoneNumber</Text>
+              <TextInput
+                ref={phoneNumberInput}
+                placeholderTextColor="#ff9b7c"
+                style={styles.input}
+                placeholder={emPlaceholder}
+                keyboardType="email-address"
+                value={phoneNumber}
+                onChangeText={handlePhoneNumber}
+              />
+            </View>
 
             <View style={styles.inputField}>
               <Text style={styles.inputLabel}>Password</Text>
@@ -251,7 +269,13 @@ const SignUp = () => {
           <CustomButton
             onPress={async () => {
               setLoading(false);
-              await signup(password, confirmPassword, email, username);
+              await signup(
+                password,
+                confirmPassword,
+                email,
+                username,
+                phoneNumber
+              );
               setLoading(false);
             }}
             disabled={loading}

@@ -54,14 +54,18 @@ const AuthProvider = (props: AuthContextInterface) => {
           try {
             console.log("*************************************");
             const token = await firebaseUser.getIdToken();
-            let user = null;
+            let user: any = {};
             const snap = await getDoc(doc(db, "users", firebaseUser.uid));
             console.log(snap);
+            console.log(snap.data());
             if (snap.exists()) user = snap.data();
 
             console.log(user);
             console.log("token");
             console.log(token);
+            user["uid"] = firebaseUser.uid;
+            console.log("user");
+            console.log(user);
             setUser(user);
             setUserToken(token);
           } catch (e: any) {

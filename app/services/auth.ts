@@ -35,7 +35,8 @@ export async function authLogout(): Promise<boolean> {
 export const authSignUp = async (
   username: string,
   email: string,
-  password: string
+  password: string,
+  phoneNumber: string
 ): Promise<boolean> => {
   try {
     const result = await createUserWithEmailAndPassword(auth, email, password);
@@ -44,10 +45,12 @@ export const authSignUp = async (
     // Create Firestore profile
     console.log("creating ...");
     console.log(user);
+    console.log(user.uid);
     const docresult = await setDoc(doc(db, "users", user.uid), {
       username,
       email: user.email,
       createdAt: Date.now(),
+      phoneNumber,
     });
     // Force Firebase to refresh the user data
     console.log("user created");

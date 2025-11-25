@@ -14,7 +14,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { StepperContext } from "./context/StepperProvider";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-import Home from "./(tabs)/home/home";
+import Home from "./(tabs)/(contacts)/home";
 import profile from "./(tabs)/(profile)/_layout";
 
 export default function Main() {

@@ -11,6 +11,13 @@
     "extra": {
       "API_URL": "https://fitness-api-o543.onrender.com",
       "API_URL2": "http://localhost:3000",
+      "API_KEY": "AIzaSyBRMu4q5WhbwpT7VDG5ahZhsin9J-IsYQg",
+      "AUTH_DOMAIN": "whatsapp-7eed6.firebaseapp.com",
+      "PROJECT_ID": "whatsapp-7eed6",
+      "STORAGE_BUCKET": "whatsapp-7eed6.firebasestorage.app",
+      "MESSAGING_SENDER_ID": "824562572494",
+      "APP_ID": "1:824562572494:web:b2aca9331ee0ae2a35849f",
+      "MEASUREMENT_ID": "G-H9BGCKF4V1",
       "router": {
         "origin": false
       },
