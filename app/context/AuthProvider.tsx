@@ -8,6 +8,7 @@ import Constants from "expo-constants";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth, db } from "../services/firebase";
 import { doc, getDoc } from "firebase/firestore";
+import { updateUserStatus } from "../services/user";
 const { API_URL } = Constants.expoConfig?.extra;
 
 interface AuthContextSettingsInterface {
@@ -54,19 +55,23 @@ const AuthProvider = (props: AuthContextInterface) => {
           try {
             console.log("*************************************");
             const token = await firebaseUser.getIdToken();
-            let user: any = {};
+            let currentUser: any = {};
             const snap = await getDoc(doc(db, "users", firebaseUser.uid));
             console.log(snap);
             console.log(snap.data());
-            if (snap.exists()) user = snap.data();
+            if (snap.exists()) currentUser = snap.data();
 
-            console.log(user);
+            console.log(currentUser);
             console.log("token");
             console.log(token);
-            user["uid"] = firebaseUser.uid;
+            currentUser["uid"] = firebaseUser.uid;
+            currentUser.status = true;
             console.log("user");
-            console.log(user);
-            setUser(user);
+            console.log(currentUser);
+
+            await updateUserStatus(currentUser.uid, true);
+
+            setUser(currentUser);
             setUserToken(token);
           } catch (e: any) {
             console.log("error refreshing token : " + e.message);
@@ -75,6 +80,12 @@ const AuthProvider = (props: AuthContextInterface) => {
         check(firebaseUser);
       } else {
         // no valid session
+        if (user) {
+          const invalidateStatus = async () => {
+            await updateUserStatus(user.uid, false);
+          };
+          invalidateStatus;
+        }
         setUserToken(null);
         setUser(null);
       }

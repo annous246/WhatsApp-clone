@@ -9,6 +9,7 @@ import {
 import { doc, getDoc, setDoc } from "firebase/firestore";
 
 import { auth, db } from "./firebase";
+import { updateUserStatus } from "./user";
 export async function authSingIn(
   password: string,
   email: string
@@ -23,8 +24,10 @@ export async function authSingIn(
   }
 }
 
-export async function authLogout(): Promise<boolean> {
+export async function authLogout(userId): Promise<boolean> {
   try {
+    await updateUserStatus(userId, false);
+
     const result = await signOut(auth);
     return true;
   } catch (e: any) {

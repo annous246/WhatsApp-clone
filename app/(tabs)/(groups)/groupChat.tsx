@@ -1,19 +1,20 @@
 import { Dimensions, ScrollView, StyleSheet, Text, View } from "react-native";
 import React, { useContext, useEffect, useRef, useState } from "react";
-import { useLocalSearchParams } from "expo-router";
-
 import { RouteProp, useNavigation, useRoute } from "@react-navigation/native";
-import Message from "./Message";
-import Controller from "./Controller";
-import { deleteMessage, getchat } from "@/app/services/messagerie";
+
+import { deleteMessage, getchat } from "@/app/services/group";
 import { AuthContext } from "@/app/context/AuthProvider";
+import Message from "../(contacts)/Message";
+import Controller from "../(contacts)/Controller";
+import GroupController from "./groupController";
+
 const { height: screenHeight, width: screenWidth } = Dimensions.get("window");
 type RootStackParamList = {
   home: undefined;
-  chat: { id: string; username: string };
+  groupchat: { groupId: string; groupName: string }; // changed here
 };
 
-type ChatScreenRouteProp = RouteProp<RootStackParamList, "chat">;
+type ChatScreenRouteProp = RouteProp<RootStackParamList, "groupchat">;
 
 export interface messageType {
   id: string;
@@ -23,25 +24,27 @@ export interface messageType {
   date?: string;
   type?: string;
 }
-const Chat = () => {
-  const [messages, setMessages] = React.useState<messageType[]>([]);
+const GroupChat = () => {
   const route = useRoute<ChatScreenRouteProp>();
-  const { id } = route.params;
-  const { username } = route.params;
-  const AuthSettings = useContext(AuthContext);
-  const user = AuthSettings.user;
-  const unsubscribe = useRef<any>(null);
+  const { groupId } = route.params;
+  const { groupName } = route.params;
+
   const navigation = useNavigation();
+  const { user } = useContext(AuthContext);
+  const unsubscribe = useRef<any>(null);
+
+  const [messages, setMessages] = useState<messageType[]>([]);
 
   useEffect(() => {
-    console.log(username);
-    navigation.setOptions({ title: username });
-  }, [username]);
-  useEffect(() => {
-    if (id) {
-      unsubscribe.current = getchat(user.uid, id, setMessages);
+    if (groupId) {
+      unsubscribe.current = getchat(user.uid, groupId, setMessages);
     }
-  }, [id]);
+  }, [groupId]);
+  useEffect(() => {
+    console.log(groupName);
+    navigation.setOptions({ title: groupName + " Group" });
+  }, [groupName]);
+
   useEffect(() => {
     return () => {
       if (unsubscribe.current) return unsubscribe.current();
@@ -64,30 +67,25 @@ const Chat = () => {
           maxHeight: "90%",
         }}
       >
-        {/* <Text>{id}</Text> */}
         {messages.map((message, index) => (
           <Message
-            id={message.id}
             key={index}
             message={message.message}
             me={message.me}
-            date={message.date}
             username={message.username}
+            date={message.date}
             type={message.type}
+            id={message.id}
             deleteMessage={() => handleDelete(message.id, message.me)}
           />
         ))}
       </ScrollView>
 
-      <Controller
-        receiverUsername={username}
-        setMessages={setMessages}
-        receiverId={id}
-      />
+      <GroupController groupId={groupId} />
     </View>
   );
 };
 
-export default Chat;
+export default GroupChat;
 
 const styles = StyleSheet.create({});

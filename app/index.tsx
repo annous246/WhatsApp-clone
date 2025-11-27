@@ -35,6 +35,7 @@ const App = () => {
     setLogged(AuthSettings.userToken != null);
   }, [AuthSettings.userToken]);
 */
+
   useEffect(() => {
     initilize();
   }, []);

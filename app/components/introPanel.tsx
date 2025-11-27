@@ -17,7 +17,7 @@ import axios from "axios";
 import { authLogout } from "../services/auth";
 import { router } from "expo-router";
 import { notificationContext } from "../context/NotificationProvider";
-import { savePhone, saveUsername } from "../services/user";
+import { addProfilePicture, savePhone, saveUsername } from "../services/user";
 
 const IntroPanel = () => {
   const AuthSettings = useContext(AuthContext);
@@ -28,6 +28,7 @@ const IntroPanel = () => {
   // STATES FOR EDITABLE FIELDS
   const [username, setUsername] = useState(user.username || "");
   const [phoneNumber, setPhoneNumber] = useState(user.phoneNumber || "");
+  const [imageUrl, setImageUrl] = useState<string>(user.image || "");
 
   async function saveProfile() {
     // EMPTY FUNCTION (you will implement later)
@@ -43,10 +44,22 @@ const IntroPanel = () => {
   }
 
   async function logout() {
-    const res = await authLogout();
+    const res = await authLogout(user?.uid);
     if (res) {
       router.push("/(auth)/sign-in");
       NotificationSettings.notify("Logged Out", 0);
+    }
+  }
+
+  async function addPic() {
+    console.log("first");
+    const resUri = await addProfilePicture(user.uid);
+    if (!resUri || !resUri.length) {
+      NotificationSettings.notify("error adding", 2);
+    } else {
+      user.image = resUri;
+      setImageUrl(user.image);
+      NotificationSettings.notify("New Pic Added Successfully ", 0);
     }
   }
 
@@ -121,24 +134,39 @@ const IntroPanel = () => {
           shadowRadius: 4,
         }}
       >
-        <View
+        <TouchableOpacity
+          onPress={addPic}
           style={{
             borderWidth: 1,
+            marginTop: 10,
             borderRadius: 100,
             overflow: "hidden",
           }}
         >
-          <Image
-            source={icons.person}
-            style={{
-              width: 50,
-              height: 50,
-              margin: 20,
-              padding: 50,
-              borderRadius: 100,
-            }}
-          />
-        </View>
+          {user.image?.length == 0 ? (
+            <Image
+              source={icons.person}
+              style={{
+                width: 50,
+                height: 50,
+                margin: 20,
+                padding: 50,
+                borderRadius: 100,
+              }}
+            />
+          ) : (
+            <Image
+              source={{ uri: imageUrl }}
+              style={{
+                width: 50,
+                height: 50,
+                margin: 20,
+                padding: 50,
+                borderRadius: 100,
+              }}
+            />
+          )}
+        </TouchableOpacity>
 
         <View
           style={{

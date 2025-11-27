@@ -21,6 +21,10 @@ import {
   useNavigationState,
 } from "@react-navigation/native";
 import ContactsLayout from "./(contacts)/_layout";
+import CreateGroups from "./(create_group)/createGroup";
+import CreateGroup from "./(create_group)/createGroup";
+import GroupsList from "./(groups)/groups";
+import GroupsLayout from "./(groups)/_layout";
 const Tabs = createBottomTabNavigator();
 const TabsLayout = () => {
   const state = useNavigationState((state) => state); // full navigation state
@@ -58,6 +62,54 @@ const TabsLayout = () => {
                     focused={focused}
                     icon="people"
                     name="Friends"
+                    size={size}
+                    color={color}
+                  />
+                );
+              },
+            };
+          }}
+        />
+        <Tabs.Screen
+          name="(create_group)"
+          component={CreateGroup}
+          options={({ route }) => {
+            const routeName = getFocusedRouteNameFromRoute(route) ?? "";
+            return {
+              tabBarStyle: routeName === "chat" ? { display: "none" } : {},
+              title: "create_group",
+              headerShown: false,
+
+              tabBarIcon: ({ size, focused, color }) => {
+                return (
+                  <Icon
+                    focused={focused}
+                    icon="add"
+                    name="create group"
+                    size={size}
+                    color={color}
+                  />
+                );
+              },
+            };
+          }}
+        />
+        <Tabs.Screen
+          name="(groups)"
+          component={GroupsLayout}
+          options={({ route }) => {
+            const routeName = getFocusedRouteNameFromRoute(route) ?? "";
+            return {
+              tabBarStyle: routeName === "chat" ? { display: "none" } : {},
+              title: "groups",
+              headerShown: false,
+
+              tabBarIcon: ({ size, focused, color }) => {
+                return (
+                  <Icon
+                    focused={focused}
+                    icon="people"
+                    name="group chats"
                     size={size}
                     color={color}
                   />

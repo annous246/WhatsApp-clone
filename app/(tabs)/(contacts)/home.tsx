@@ -1,14 +1,25 @@
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import {
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+  Image,
+} from "react-native";
 import React, { useContext, useEffect, useState } from "react";
-import { getUsers } from "@/app/services/user";
+import { getUsers, subscribeUsers } from "@/app/services/user";
 import { AuthContext } from "@/app/context/AuthProvider";
 import { router } from "expo-router";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import icons from "@/app/constants/icons";
+
+import { initPeer, answerCall } from "@/app/services/peerService";
+//import { MediaStream, mediaDevices } from "react-native-webrtc";
 
 type RootStackParamList = {
   home: undefined;
-  chat: { id: string };
+  chat: { id: string; username: string };
 };
 
 type HomeScreenNavigationProp = NativeStackNavigationProp<
@@ -21,35 +32,119 @@ const Home = () => {
 
   const navigation = useNavigation<HomeScreenNavigationProp>();
 
-  const openChat = (id: string) => {
-    navigation.navigate("chat", { id });
+  const openChat = (id: string, username: string) => {
+    navigation.navigate("chat", { id, username });
   };
-  async function fetchUsers() {
-    const currentUsers = await getUsers(user.uid);
-    setUsers(currentUsers ?? []);
-  }
+  // async function fetchUsers() {
+  //   const currentUsers = await getUsers(user.uid);
+  //   setUsers(currentUsers ?? []);
+  // }
   useEffect(() => {
     console.log(users);
   }, [users]);
   useEffect(() => {
-    fetchUsers();
+    /*real time user getting */
+    const unsub = subscribeUsers(user.uid, (liveUsers) => {
+      setUsers(liveUsers);
+    });
+
+    // //******** */
+
+    // const peerInstance = initPeer(user.uid, async (incomingCall) => {
+    //   console.log("Incoming call from:", incomingCall.peer);
+
+    //   // Conditional answer
+    //   if (incomingCall.peer === user.uid) {
+    //     try {
+    //       const stream = await mediaDevices.getUserMedia({ audio: true });
+    //       answerCall(incomingCall, stream);
+
+    //       incomingCall.on("stream", (remoteStream: MediaProvider | null) => {
+    //         // play remote audio
+    //         const audio = new Audio();
+    //         audio.srcObject = remoteStream;
+    //         audio.play();
+    //       });
+    //     } catch (err) {
+    //       console.log("Microphone access error:", err);
+    //     }
+    //   } else {
+    //     console.log("Ignoring call from:", incomingCall.peer);
+    //   }
+    // });
+
+    // return () => {
+    //   // cleanup
+    //   peerInstance.destroy();
+    // };
+
+    return () => unsub(); // cleanup
   }, []);
+  const StatusDot = ({ status }: { status: boolean }) => (
+    <View
+      style={{
+        margin: "auto",
+        marginLeft: 10,
+        marginTop: 11,
+        width: 12,
+        height: 12,
+        borderRadius: 6,
+        backgroundColor: status ? "green" : "red",
+      }}
+    />
+  );
 
   return (
-    <View style={styles.container}>
+    <ScrollView style={styles.container}>
       <Text style={styles.title}>Users List</Text>
       {users.map((userItem) => (
         <TouchableOpacity
           key={userItem.id}
           style={styles.card}
-          onPress={() => openChat(userItem.id)}
+          onPress={() => openChat(userItem.id, userItem.username)}
         >
-          <Text style={styles.username}>{userItem.username}</Text>
-          <Text style={styles.email}>{userItem.email}</Text>
-          <Text style={styles.phone}>{userItem.phoneNumber}</Text>
+          <View
+            style={{
+              borderRadius: 100,
+              overflow: "hidden",
+            }}
+          >
+            {userItem.image?.length == 0 ? (
+              <Image
+                source={icons.person}
+                style={{
+                  width: 30,
+                  height: 30,
+                  margin: 20,
+                  padding: 30,
+                  borderRadius: 100,
+                }}
+              />
+            ) : (
+              <Image
+                source={{ uri: userItem.image }}
+                style={{
+                  width: 30,
+                  height: 30,
+                  margin: 20,
+                  padding: 30,
+                  borderRadius: 100,
+                }}
+              />
+            )}
+          </View>
+          <View>
+            <View style={{ flexDirection: "row" }}>
+              <Text style={styles.username}>{userItem.username}</Text>
+              {<StatusDot status={userItem.status} />}
+            </View>
+            <Text style={styles.email}>{userItem.email}</Text>
+            <Text style={styles.phone}>{userItem.phoneNumber}</Text>
+          </View>
         </TouchableOpacity>
       ))}
-    </View>
+      <View style={{ marginBottom: 25 }}></View>
+    </ScrollView>
   );
 };
 
@@ -68,6 +163,7 @@ const styles = StyleSheet.create({
     color: "#333",
   },
   card: {
+    flexDirection: "row",
     backgroundColor: "#fff",
     borderRadius: 12,
     padding: 15,
