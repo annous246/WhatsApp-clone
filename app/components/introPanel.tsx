@@ -29,6 +29,7 @@ const IntroPanel = () => {
   const [username, setUsername] = useState(user.username || "");
   const [phoneNumber, setPhoneNumber] = useState(user.phoneNumber || "");
   const [imageUrl, setImageUrl] = useState<string>(user.image || "");
+  const [status, setStatus] = useState<boolean>(user.status);
 
   async function saveProfile() {
     // EMPTY FUNCTION (you will implement later)
@@ -176,6 +177,7 @@ const IntroPanel = () => {
           }}
         >
           {/* USERNAME - EDITABLE */}
+          {/* <Text>{status ? "connected" : "disconnected"}</Text> */}
           <TextInput
             value={username}
             onChangeText={setUsername}

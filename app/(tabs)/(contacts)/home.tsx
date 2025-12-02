@@ -13,13 +13,10 @@ import { router } from "expo-router";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import icons from "@/app/constants/icons";
-
-import { initPeer, answerCall } from "@/app/services/peerService";
-//import { MediaStream, mediaDevices } from "react-native-webrtc";
-
+import useAutoLogoutOnBackground from "@/app/hooks/useAutoLogoutOnBackground";
 type RootStackParamList = {
   home: undefined;
-  chat: { id: string; username: string };
+  ChatLayout: { id: string; username: string };
 };
 
 type HomeScreenNavigationProp = NativeStackNavigationProp<
@@ -27,13 +24,14 @@ type HomeScreenNavigationProp = NativeStackNavigationProp<
   "home"
 >;
 const Home = () => {
+  useAutoLogoutOnBackground();
   const user = useContext(AuthContext).user ?? {};
   const [users, setUsers] = useState<any[]>([]);
 
   const navigation = useNavigation<HomeScreenNavigationProp>();
 
   const openChat = (id: string, username: string) => {
-    navigation.navigate("chat", { id, username });
+    navigation.navigate("ChatLayout", { id, username });
   };
   // async function fetchUsers() {
   //   const currentUsers = await getUsers(user.uid);

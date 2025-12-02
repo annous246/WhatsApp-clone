@@ -9,6 +9,7 @@ import { onAuthStateChanged } from "firebase/auth";
 import { auth, db } from "../services/firebase";
 import { doc, getDoc } from "firebase/firestore";
 import { updateUserStatus } from "../services/user";
+import LoadingComponent from "../components/loadingComponent";
 const { API_URL } = Constants.expoConfig?.extra;
 
 interface AuthContextSettingsInterface {
@@ -36,6 +37,7 @@ interface AuthContextInterface {
 const AuthProvider = (props: AuthContextInterface) => {
   const [userToken, setUserToken] = useState<any | null>(null);
   const [user, setUser] = useState<any | null>(null);
+  const [loading, setLoading] = useState<boolean>(false);
   const StepperSettings = useContext(StepperContext);
   async function testToken() {
     console.log("testing");
@@ -53,6 +55,7 @@ const AuthProvider = (props: AuthContextInterface) => {
 
         async function check(firebaseUser: any) {
           try {
+            setLoading(true);
             console.log("*************************************");
             const token = await firebaseUser.getIdToken();
             let currentUser: any = {};
@@ -73,8 +76,11 @@ const AuthProvider = (props: AuthContextInterface) => {
 
             setUser(currentUser);
             setUserToken(token);
+
+            setLoading(false);
           } catch (e: any) {
             console.log("error refreshing token : " + e.message);
+            setLoading(false);
           }
         }
         check(firebaseUser);
@@ -135,6 +141,7 @@ const AuthProvider = (props: AuthContextInterface) => {
         setUserToken: setUserToken,
       }}
     >
+      <LoadingComponent loading={loading} text="Authenticate" />
       {props.children}
     </AuthContext.Provider>
   );

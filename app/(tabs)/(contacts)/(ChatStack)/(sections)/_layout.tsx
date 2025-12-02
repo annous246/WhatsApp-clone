@@ -8,33 +8,25 @@ import {
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import { Redirect } from "expo-router";
-import icons from "../constants/icons";
 import { text } from "body-parser";
 import { Ionicons } from "@expo/vector-icons";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 const { width: screenWidth, height: screenHeight } = Dimensions.get("window");
-import Home from "./(contacts)/home";
-import Profile from "./(profile)/_layout";
-import Icon from "../components/Icon";
 import {
   getFocusedRouteNameFromRoute,
   useNavigationState,
+  useRoute,
 } from "@react-navigation/native";
-import ContactsLayout from "./(contacts)/_layout";
-import CreateGroups from "./(create_group)/createGroup";
-import CreateGroup from "./(create_group)/createGroup";
-import GroupsList from "./(groups)/groups";
-import GroupsLayout from "./(groups)/_layout";
+import Icon from "@/app/components/Icon";
+import Locations from "./Locations";
+import Media from "./Media";
 const Tabs = createBottomTabNavigator();
-const TabsLayout = () => {
+const SectionLayout = () => {
   const state = useNavigationState((state) => state); // full navigation state
-  const currentTabIndex = state.index; // index of active ta
   const currentTab = state.routes[0]["state"] ?? { index: 0 };
-  useEffect(() => {
-    console.log("currently");
-    console.log(currentTab);
-  }, [currentTab]);
-  const NoComp = () => null;
+
+  const route = useRoute<any>();
+  const { id } = route.params;
   return (
     <>
       <Tabs.Navigator
@@ -47,14 +39,13 @@ const TabsLayout = () => {
         }}
       >
         <Tabs.Screen
-          name="(contacts)"
-          component={ContactsLayout}
+          name="locations"
+          component={Locations}
+          initialParams={{ id }}
           options={({ route }) => {
             const routeName = getFocusedRouteNameFromRoute(route) ?? "";
             return {
-              tabBarStyle:
-                routeName === "ChatLayout" ? { display: "none" } : {},
-              title: "(contacts)",
+              title: "locations",
               headerShown: false,
 
               tabBarIcon: ({ size, focused, color }) => {
@@ -62,7 +53,7 @@ const TabsLayout = () => {
                   <Icon
                     focused={focused}
                     icon="people"
-                    name="Friends"
+                    name="Locations"
                     size={size}
                     color={color}
                   />
@@ -72,8 +63,9 @@ const TabsLayout = () => {
           }}
         />
         <Tabs.Screen
-          name="(create_group)"
-          component={CreateGroup}
+          name="media"
+          component={Media}
+          initialParams={{ id }}
           options={({ route }) => {
             const routeName = getFocusedRouteNameFromRoute(route) ?? "";
             return {
@@ -86,57 +78,13 @@ const TabsLayout = () => {
                   <Icon
                     focused={focused}
                     icon="add"
-                    name="create group"
+                    name="Media"
                     size={size}
                     color={color}
                   />
                 );
               },
             };
-          }}
-        />
-        <Tabs.Screen
-          name="(groups)"
-          component={GroupsLayout}
-          options={({ route }) => {
-            const routeName = getFocusedRouteNameFromRoute(route) ?? "";
-            return {
-              tabBarStyle: routeName === "chat" ? { display: "none" } : {},
-              title: "groups",
-              headerShown: false,
-
-              tabBarIcon: ({ size, focused, color }) => {
-                return (
-                  <Icon
-                    focused={focused}
-                    icon="people"
-                    name="group chats"
-                    size={size}
-                    color={color}
-                  />
-                );
-              },
-            };
-          }}
-        />
-
-        <Tabs.Screen
-          name="(profile)"
-          component={Profile}
-          options={{
-            title: "Profile",
-            headerShown: false,
-            tabBarIcon: ({ size, focused, color }) => {
-              return (
-                <Icon
-                  focused={focused}
-                  icon="person"
-                  name="Profile"
-                  size={size}
-                  color={color}
-                />
-              );
-            },
           }}
         />
       </Tabs.Navigator>
@@ -144,7 +92,7 @@ const TabsLayout = () => {
   );
 };
 
-export default TabsLayout;
+export default SectionLayout;
 
 const styles = StyleSheet.create({
   image: {

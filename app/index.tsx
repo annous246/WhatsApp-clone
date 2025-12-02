@@ -17,10 +17,12 @@ import LottieView from "lottie-react-native";
 import animations from "./constants/animations";
 import { AuthContext } from "./context/AuthProvider";
 import LoadingComponent from "./components/loadingComponent";
+import useAutoLogoutOnBackground from "./hooks/useAutoLogoutOnBackground";
 const App = () => {
   const [logged, setLogged] = useState<Boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
   const AuthSettings = useContext(AuthContext);
+
   async function initilize() {
     const localToken = await AsyncStorage.getItem("userToken");
     setLogged(localToken != null);

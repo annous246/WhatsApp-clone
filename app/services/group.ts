@@ -14,6 +14,7 @@ import {
   deleteDoc,
   runTransaction,
   arrayRemove,
+  getDoc,
 } from "firebase/firestore";
 import { db } from "./firebase";
 
@@ -68,23 +69,37 @@ export async function createGroup(ids: string[], groupName: string) {
     return false;
   }
 }
-import { messageType } from "../(tabs)/(contacts)/chat";
+import { messageType } from "../(tabs)/(groups)/groupChat";
+import { Unsubscribe } from "firebase/auth";
 
-export function getchat(
+export async function getchat(
   userId: string,
   groupId: string,
   setMessages: any
-): any {
+): Promise<Unsubscribe | null> {
   try {
     const q = query(
       collection(db, "groupMessages"),
       orderBy("createdAt", "asc"),
       where("groupId", "==", groupId)
     );
-    const unsubscribe = onSnapshot(q, (snap) => {
+    const unsubscribe = onSnapshot(q, async (snap) => {
       let msgs = [];
       snap.forEach((doc) => msgs.push({ id: doc.id, ...doc.data() }));
       const currentMessages: messageType[] = [];
+
+      //image getting part
+      const senderSet = new Set<string>();
+      msgs.forEach((m: any) => senderSet.add(m.senderId));
+
+      const imageMap: any = {};
+      for (const uid of senderSet) {
+        const userDoc = await getDoc(doc(db, "users", uid));
+        imageMap[uid] = userDoc.exists() ? userDoc.data().image : null;
+      }
+
+      //****************** */
+
       msgs.forEach((message: any) => {
         console.log("message");
         console.log(message);
@@ -101,6 +116,7 @@ export function getchat(
           username: message.senderUsername,
           type: message.type,
           date: currentDate.toDateString(),
+          image: imageMap[message.senderId],
         });
       });
       console.log(currentMessages);
@@ -145,6 +161,21 @@ export async function deleteMessage(messageId: string) {
     return true;
   } catch (e: any) {
     console.log("error deleting message " + e.message);
+    return false;
+  }
+}
+
+export async function editMessage(
+  messageId: string,
+  newMessage: string
+): Promise<boolean> {
+  try {
+    await updateDoc(doc(db, "groupMessages", messageId), {
+      message: newMessage,
+    });
+    return true;
+  } catch (e: any) {
+    console.log("error " + e);
     return false;
   }
 }

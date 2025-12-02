@@ -24,10 +24,10 @@ export async function authSingIn(
   }
 }
 
-export async function authLogout(userId): Promise<boolean> {
+export async function authLogout(userId: string): Promise<boolean> {
   try {
-    await updateUserStatus(userId, false);
-
+    const res = await updateUserStatus(userId, false);
+    if (!res) return false;
     const result = await signOut(auth);
     return true;
   } catch (e: any) {
